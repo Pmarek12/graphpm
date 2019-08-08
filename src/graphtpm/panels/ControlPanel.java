@@ -5,6 +5,7 @@ import graphtpm.buttons.actions.DeleteAction;
 import graphtpm.buttons.actions.MultigrafAction;
 import graphtpm.buttons.actions.NextAction;
 import graphtpm.buttons.certificate.CertificateAction;
+import graphtpm.buttons.dance.DanceAction;
 import graphtpm.buttons.prufer.PruferAction;
 import graphtpm.buttons.pruferdraw.PruferDrawAction;
 
@@ -23,6 +24,7 @@ public class ControlPanel extends JToolBar {
     private Action pruferDraw = new PruferDrawAction("Prufer Draw");
     private Action certificate= new CertificateAction("Certificate");
     private Action next = new NextAction("Next");
+    private Action dance = new DanceAction("Dance");
 
     ControlPanel() {
         this.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -33,6 +35,7 @@ public class ControlPanel extends JToolBar {
         this.add(new JButton(pruferDraw));
         this.add(new JButton(certificate));
         this.add(new JButton(next));
+        this.add(new JButton(dance));
         JSpinner js = new JSpinner();
         js.setModel(new SpinnerNumberModel(2000, 10, 10000, 10));
         js.addChangeListener(new ChangeListener() {

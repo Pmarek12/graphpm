@@ -3,11 +3,13 @@ package graphtpm.panels;
 import graphtpm.Starter;
 import graphtpm.structure.AreaPoint;
 import graphtpm.structure.Edge;
+import graphtpm.structure.PointPair;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.QuadCurve2D;
+import java.util.ArrayList;
 
 public class GraphPanel extends JComponent {
     public ControlPanel control = new ControlPanel();
@@ -73,10 +75,14 @@ public class GraphPanel extends JComponent {
 
     private void drawLine(Graphics2D g2d) {
         g2d.setStroke(new BasicStroke(Starter.size));
+        ArrayList<PointPair> pairsToSkip = new ArrayList<PointPair>();
         for (int i = 0; i < Starter.edges.size(); i++) {
             Edge e = Starter.edges.get(i);
-            if (e.getP2().neighbours.get(e.getP1().getIndex()) == 2) {
-                drawElipse(g2d, e.getP1(), e.getP2());
+            if (e.getP2().neighbours.get(e.getP1().getIndex()) == 2){
+                if(!pairsToSkip.contains(new PointPair(e.getP2(),e.getP1()))){
+                    pairsToSkip.add(new PointPair(e.getP1(),e.getP2()));
+                    drawElipse(g2d, e.getP1(), e.getP2());
+                }
             } else {
                 g2d.drawLine(e.getP1().x, e.getP1().y, e.getP2().x, e.getP2().y);
                 if (Starter.directedB) {
@@ -85,6 +91,7 @@ public class GraphPanel extends JComponent {
                 }
             }
         }
+        pairsToSkip.clear();
     }
 
     private void drawArrowHead(Graphics2D g2d, Point tip, Point tail) {
@@ -102,15 +109,43 @@ public class GraphPanel extends JComponent {
         }
     }
 
-    private void drawElipse(Graphics2D g2d, Point p1, Point p2) {
+    /* private void drawElipse(Graphics2D g2d, Point p1, Point p2) {
         int ratio = (Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y)) / Starter.rat;
         if (Math.signum(p1.x - p2.x) == Math.signum(p1.y - p2.y)) {
             g2d.draw(new QuadCurve2D.Float(p1.x, p1.y, (p1.x + p2.x) / 2 - ratio, (p1.y + p2.y) / 2 + ratio, p2.x, p2.y));
             g2d.draw(new QuadCurve2D.Float(p1.x, p1.y, (p1.x + p2.x) / 2 + ratio, (p1.y + p2.y) / 2 - ratio, p2.x, p2.y));
+            drawArrowHead(g2d, new Point((p1.x + p2.x) / 2,  (p1.y + p2.y) / 2 -ratio), new Point(p2.x,p2.y+ratio));
+            drawArrowHead(g2d, new Point((p1.x + p2.x) / 2,  (p1.y + p2.y) / 2 +ratio), new Point(p2.x,p2.y-ratio));
             return;
         }
         g2d.draw(new QuadCurve2D.Float(p1.x, p1.y, (p1.x + p2.x) / 2 - ratio, (p1.y + p2.y) / 2 - ratio, p2.x, p2.y));
         g2d.draw(new QuadCurve2D.Float(p1.x, p1.y, (p1.x + p2.x) / 2 + ratio, (p1.y + p2.y) / 2 + ratio, p2.x, p2.y));
+    }*/
+
+    private void drawElipse(Graphics2D g2d, Point p1, Point p2) {
+
+        float ratio=1.f/Math.abs(p1.y-p2.y);
+        Point midpoint = new Point ((p1.x + p2.x)/2,(p1.y + p2.y)/2);
+        //equation for line
+        double a_1=(double)(p1.y-p2.y)/(p1.x-p2.x);
+        double b_1=p1.y-a_1*p1.x;
+        // for pararell line in midpoint
+        // float a_2=1/a_1;
+        double b_2=midpoint.y-midpoint.x/a_1;
+        // first and last quarter
+        Point quarP_1 = new Point ((p1.x + midpoint.x)/2,(p1.y + midpoint.y)/2);
+        Point quarP_2 = new Point ((p2.x + midpoint.x)/2,(p2.y + midpoint.y)/2);
+        // now we will calculate y coordinate on pararell line and create points
+        Point tip_1 = new Point (quarP_2.x, (int) (quarP_1.x/a_1 + b_2));
+        Point tip_2 = new Point (quarP_1.x, (int) (quarP_2.x/a_1 + b_2));
+        g2d.draw(new QuadCurve2D.Float(p1.x,p1.y,p1.x,tip_1.y,tip_1.x,tip_1.y));
+        g2d.draw(new QuadCurve2D.Float(p1.x,p1.y,p1.x,tip_2.y,tip_2.x,tip_2.y));
+        g2d.draw(new QuadCurve2D.Float(p2.x,p2.y,p2.x,tip_1.y,tip_1.x,tip_1.y));
+        g2d.draw(new QuadCurve2D.Float(p2.x,p2.y,p2.x,tip_2.y,tip_2.x,tip_2.y));
+        if (Starter.directedB) {
+            drawArrowHead(g2d, tip_1, new Point(p1.x, tip_1.y));
+            drawArrowHead(g2d, tip_2, new Point(p2.x, tip_2.y));
+        }
     }
 
     public Cursor customCursor(String url) {

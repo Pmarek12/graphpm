@@ -27,14 +27,14 @@ public class InputPanel extends JPanel {
         this.setBackground(Color.LIGHT_GRAY);
     }
 
-    @Override
+/*@Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
         Starter.gp.repaint();
-    }
+    } */
 
     public String getInput(){
         return input.getText();
